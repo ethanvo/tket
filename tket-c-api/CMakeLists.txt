@@ -58,10 +58,13 @@ if (NOT TARGET gmp::gmp)
 endif()
 
 # Library and headers to be installed
-add_library(tket-c-api src/tket-c-api.cpp)
+# The C API is consumed by dynamically loaded Python extensions.  A shared
+# library keeps TKET's transitive C++ implementation dependencies attached to
+# the ABI instead of leaving unresolved symbols in each extension module.
+add_library(tket-c-api SHARED src/tket-c-api.cpp src/tket-zx-api.cpp)
 target_include_directories(tket-c-api PUBLIC include)
 
-target_link_libraries(tket-c-api PRIVATE tket::tket Eigen3::Eigen)
+target_link_libraries(tket-c-api PRIVATE tket::tket Eigen3::Eigen gmp::gmp)
 
 set_target_properties(tket-c-api PROPERTIES PUBLIC_HEADER "include/tket-c-api.h")
 install(TARGETS tket-c-api)
