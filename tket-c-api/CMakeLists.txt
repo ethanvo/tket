@@ -64,7 +64,24 @@ endif()
 add_library(tket-c-api SHARED src/tket-c-api.cpp src/tket-zx-api.cpp)
 target_include_directories(tket-c-api PUBLIC include)
 
-target_link_libraries(tket-c-api PRIVATE tket::tket Eigen3::Eigen gmp::gmp)
+# Direct CMake builds discover the recursive TKET dependencies above, but
+# ``find_package`` alone does not add their include directories to this
+# target.  Link them explicitly so their CMake usage requirements are present
+# while compiling the C API's direct includes and the public TKET headers.
+target_link_libraries(
+    tket-c-api
+    PRIVATE
+        tket::tket
+        Boost::headers
+        Eigen3::Eigen
+        gmp::gmp
+        nlohmann_json::nlohmann_json
+        symengine::symengine
+        tkassert::tkassert
+        tklog::tklog
+        tkrng::tkrng
+        tktokenswap::tktokenswap
+        tkwsm::tkwsm)
 
 set_target_properties(tket-c-api PROPERTIES PUBLIC_HEADER "include/tket-c-api.h")
 install(TARGETS tket-c-api)
